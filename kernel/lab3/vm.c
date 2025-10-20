@@ -16,7 +16,7 @@ extern void kfree(void*);
  * @param alloc 是否在 PTE 无效时分配新的页表页 (非叶子节点)
  * @return 指向 PTE 的指针，如果找不到且 alloc=0 则返回 0
  */
-pte_t *walk(pagetable_t pt, uint64 va, int alloc,int *count) {
+pte_t *walk(pagetable_t pt, uint64 va, int alloc) {
     // Sv39 使用 3 级页表 (level 从 2 递减到 0)
     for (int level = 2; level > 0; level--) {
         pte_t *pte = &pt[VPN(va, level)];
@@ -32,7 +32,6 @@ pte_t *walk(pagetable_t pt, uint64 va, int alloc,int *count) {
             // 将新的页表物理地址写入当前 PTE
             // 新的 PTE 必须设置 PTE_V (有效)
             *pte = PA2PTE((uint64)pt) | PTE_V;
-            if (count) (*count)++;
         }
     }
     // 达到叶子节点，返回 PTE 的地址
@@ -54,13 +53,12 @@ int map_page(pagetable_t pt, uint64 va, uint64 pa, int perm) {
         printf("map_page: addresses must be page aligned.\n");
         return -1;
     }
-    int new_alloc_count = 0; // 记录新分配页表数量
+
     // 查找叶子节点 PTE，如果中间节点不存在则创建 (alloc=1)
-    if ((pte = walk(pt, va, 1, &new_alloc_count)) == 0) {
+    if ((pte = walk(pt, va, 1)) == 0) {
         return -1; // 页表分配失败
     }
-    // 输出新分配的页表数量
-    printf("New page tables allocated: %d\n", new_alloc_count);
+
     if (*pte & PTE_V) {
         printf("map_page: already mapped.\n");
         return -1; // 地址已被映射
