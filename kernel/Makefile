@@ -1,3 +1,5 @@
+include common.mk
+
 # 工具链前缀
 RISCV_TOOLCHAIN_PREFIX := riscv64-unknown-elf-
 
