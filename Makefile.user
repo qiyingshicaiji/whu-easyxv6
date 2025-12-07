@@ -1,0 +1,14 @@
+# 用户态测试程序编译规则
+USER_ELF = user/test_syscalls.elf
+USER_OBJS = user/test_syscalls.o user/syscall.o
+USER_LDS = user/user.ld
+
+user/%.o: user/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(USER_ELF): $(USER_OBJS)
+	$(CC) $(CFLAGS) -T $(USER_LDS) -o $@ $^
+
+.PHONY: user
+user: $(USER_ELF)
+	@echo "User program build complete!"
