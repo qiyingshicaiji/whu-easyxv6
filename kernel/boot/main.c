@@ -30,7 +30,6 @@ void main()
     // 初始化文件表
     file_init();
     printf("Hello OS\n");
-
     proc_make_first();
 
     proc_scheduler();
